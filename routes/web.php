@@ -6,9 +6,10 @@ use App\Http\Controllers\GuestController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SyncController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -28,6 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/monthly', [ReportController::class, 'monthly'])->name('report.monthly');
 
     Route::get('/report/monthly/pdf', [ReportController::class, 'monthlyPdf'])->name('report.monthly.pdf');
+
+    Route::post('/sync/guests', [SyncController::class, 'run'])
+    ->middleware(['auth'])
+    ->name('sync.guests');
 });
 
 require __DIR__.'/auth.php';

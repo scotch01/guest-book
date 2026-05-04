@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Guest;
 use App\Models\GuestAssignment;
 use App\Models\Queue;
+use App\Models\SyncLock;
 
 class DashboardController extends Controller
 {
@@ -61,6 +62,26 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->get();
 
+        // =========================
+        // SYNC Lock
+        // =========================
+        $lock = SyncLock::where('key', 'guests')->first();
+
+        $canSync = true;
+        $remainingSeconds = 0;
+        $nextAvailableAt = null;
+
+        if ($lock && $lock->last_run_at) {
+            $nextAvailableAt = $lock->last_run_at->copy()->addMinutes(30);
+
+            if (now()->lt($nextAvailableAt)) {
+                $canSync = false;
+                $remainingSeconds = now()->diffInSeconds($nextAvailableAt);
+            }
+        }
+
+        $lastSync = $lock?->last_run_at;
+
         return view('dashboard', compact(
             'totalToday',
             'assignedToday',
@@ -69,7 +90,11 @@ class DashboardController extends Controller
             'ppidToday',
             'pstToday',
             'queues',
-            'employeeStats'
+            'employeeStats',
+            'canSync',
+            'lastSync',
+            'nextAvailableAt',
+            'remainingSeconds'
         ));
     }
 }

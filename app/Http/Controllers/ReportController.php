@@ -26,7 +26,7 @@ class ReportController extends Controller
 
         $pdf = Pdf::loadView('reports.monthly-pdf', $data);
 
-        return $pdf->download("report-{$month}.pdf");
+        return $pdf->stream('report-{$month}.pdf');
     }
 
     private function getReportData($month)
