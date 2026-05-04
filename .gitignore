@@ -4,6 +4,7 @@
 .env.backup
 .env.production
 .phpactor.json
+storage/app/google/
 .phpunit.result.cache
 /.fleet
 /.idea

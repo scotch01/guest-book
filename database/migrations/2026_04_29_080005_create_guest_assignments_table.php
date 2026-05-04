@@ -4,22 +4,29 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('guest_assignments', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('guest_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->foreignId('employee_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->timestamp('assigned_at');
+
             $table->timestamps();
+
+            // index untuk report
+            $table->index('assigned_at');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('guest_assignments');

@@ -16,6 +16,14 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+
+                <x-nav-link :href="route('guests.index')" :active="request()->routeIs('guests.*')">
+                    Data Tamu
+                </x-nav-link>
+
+                <x-nav-link :href="route('report.monthly')" :active="request()->routeIs('report.*')">
+                    Report
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->
