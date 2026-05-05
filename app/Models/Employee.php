@@ -16,4 +16,9 @@ class Employee extends Model
     {
         return $this->hasMany(GuestAssignment::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', 1);
+    }
 }

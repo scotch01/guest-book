@@ -7,6 +7,7 @@ use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SyncController;
+use App\Http\Controllers\EmployeeController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -33,6 +34,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/sync/guests', [SyncController::class, 'run'])
     ->middleware(['auth'])
     ->name('sync.guests');
+
+    Route::resource('employees', EmployeeController::class);
+
+    Route::patch('/employees/{employee}/activate', [EmployeeController::class, 'activate'])
+    ->name('employees.activate');
 });
 
 require __DIR__.'/auth.php';
