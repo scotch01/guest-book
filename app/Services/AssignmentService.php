@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\GuestAssignment;
 use App\Models\Queue;
+use App\Models\Guest;
 use Illuminate\Support\Facades\DB;
 
 class AssignmentService
@@ -19,11 +20,10 @@ class AssignmentService
     {
         return DB::transaction(function () use ($guestId, $employeeId) {
 
-            // cek sudah pernah assign?
             $existing = GuestAssignment::where('guest_id', $guestId)->first();
 
             if ($existing) {
-                return $existing; // tidak duplicate
+                return $existing;
             }
 
             $assignment = GuestAssignment::create([
@@ -32,8 +32,9 @@ class AssignmentService
                 'assigned_at' => now(),
             ]);
 
-            // generate queue
-            // $this->queueService->generate($guestId);
+            Guest::where('id', $guestId)->update([
+                'status' => 'dilayani'
+            ]);
 
             return $assignment;
         });

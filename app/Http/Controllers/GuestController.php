@@ -12,6 +12,37 @@ class GuestController extends Controller
     {
         $tab = $request->get('tab', 'today');
 
+        // =========================
+        // VALIDASI FILTER TANGGAL
+        // =========================
+        if ($tab === 'history') {
+
+            $start = $request->start_date;
+            $end   = $request->end_date;
+
+            try {
+
+                if ($start && !\Carbon\Carbon::hasFormat($start, 'Y-m-d')) {
+                    throw new \Exception('Format tanggal mulai tidak valid.');
+                }
+
+                if ($end && !\Carbon\Carbon::hasFormat($end, 'Y-m-d')) {
+                    throw new \Exception('Format tanggal akhir tidak valid.');
+                }
+
+                if ($start && $end) {
+                    if ($start > $end) {
+                        throw new \Exception('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
+                    }
+                }
+
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $e->getMessage());
+            }
+        }
+
         $query = \App\Models\Guest::with(['assignment.employee', 'queue']);
 
         // TAB: HARI INI
@@ -21,6 +52,12 @@ class GuestController extends Controller
 
         // TAB: RIWAYAT
         if ($tab === 'history') {
+
+            $query->where(function ($q) {
+                $q->whereDate('tanggal_kunjungan', '<', today())
+                ->orWhereNull('tanggal_kunjungan');
+            });
+
             if ($request->filled('start_date')) {
                 $query->whereDate('tanggal_kunjungan', '>=', $request->start_date);
             }

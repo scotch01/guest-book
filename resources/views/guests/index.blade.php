@@ -33,6 +33,18 @@
             </div>
         </div>
 
+        @if (session('error'))
+            <div
+                class="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-2xl text-sm font-bold flex items-center gap-3 animate-fade-in shadow-sm">
+                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-4a1 1 0 112 0 1 1 0 01-2 0zm.293-9.707a1 1 0 011.414 0l.007.007v5.4a1 1 0 11-2 0v-5.4l.579-.007z"
+                        clip-rule="evenodd" />
+                </svg>
+                {{ session('error') }}
+            </div>
+        @endif
+
         {{-- FILTER CARD (Only for History) --}}
         @if ($tab === 'history')
             <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
@@ -43,14 +55,16 @@
                         <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Dari
                             Tanggal</label>
                         <input type="date" name="start_date" value="{{ request('start_date') }}"
-                            class="block border-gray-200 bg-gray-50 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
+                            class="block border-gray-200 bg-gray-50 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm cursor-pointer"
+                            onclick="this.showPicker()">
                     </div>
 
                     <div class="space-y-1.5">
                         <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Sampai
                             Tanggal</label>
                         <input type="date" name="end_date" value="{{ request('end_date') }}"
-                            class="block border-gray-200 bg-gray-50 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm">
+                            class="block border-gray-200 bg-gray-50 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm cursor-pointer"
+                            onclick="this.showPicker()">
                     </div>
 
                     <button
@@ -114,11 +128,22 @@
                                 </td>
                                 <td class="px-6 py-4 border-r border-gray-100 text-center">
                                     <div class="text-xs font-bold text-gray-800">{{ $guest->tanggal_kunjungan }}</div>
-                                    <div class="mt-1">
+                                    <div class="mt-1 flex flex-col items-center gap-1">
                                         <span
                                             class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black bg-blue-600 text-white shadow-sm">
                                             Q-{{ $guest->queue?->queue_number ?? '-' }}
                                         </span>
+
+                                        {{-- STATUS --}}
+                                        @if ($guest->status === 'menunggu')
+                                            <span class="text-[10px] font-bold text-yellow-600 uppercase">
+                                                Menunggu
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] font-bold text-green-600 uppercase">
+                                                Selesai
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 border-r border-gray-100">
@@ -136,31 +161,17 @@
                                 <td class="px-6 py-4 border-r border-gray-100 text-center">
                                     @if ($guest->assignment?->employee?->nama)
                                         <div class="text-xs font-semibold text-gray-800">
-                                            {{ $guest->assignment->employee->nama }}</div>
+                                            {{ $guest->assignment->employee->nama }}
+                                        </div>
+                                    @elseif ($guest->status === 'dilayani')
+                                        <span class="text-gray-300 italic text-xs">—</span>
                                     @else
                                         <span class="text-gray-300 italic text-xs">Belum ada</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-center bg-gray-50/30">
-                                    @if (!$guest->assignment)
-                                        <form method="POST" action="{{ route('assign.store') }}"
-                                            class="flex flex-col gap-2 max-w-[150px] mx-auto">
-                                            @csrf
-                                            <input type="hidden" name="guest_id" value="{{ $guest->id }}">
-                                            <select name="employee_id"
-                                                class="border-gray-200 rounded-xl text-[11px] px-2 py-1.5 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-                                                required>
-                                                <option value="">Pilih Pegawai</option>
-                                                @foreach ($employees as $emp)
-                                                    <option value="{{ $emp->id }}">{{ $emp->nama }}</option>
-                                                @endforeach
-                                            </select>
-                                            <button
-                                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-[10px] shadow-md shadow-green-100 transition-all active:scale-95">
-                                                Assign Petugas
-                                            </button>
-                                        </form>
-                                    @else
+                                    @if ($guest->assignment)
+                                        {{-- SUDAH DI-ASSIGN = DILAYANI --}}
                                         <div class="flex flex-col items-center gap-1">
                                             <svg class="w-5 h-5 text-green-500" fill="currentColor"
                                                 viewBox="0 0 20 20">
@@ -168,8 +179,95 @@
                                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                                     clip-rule="evenodd" />
                                             </svg>
-                                            <span
-                                                class="text-[10px] font-bold text-green-600 uppercase">Terselesaikan</span>
+                                            <span class="text-[10px] font-bold text-green-600 uppercase">
+                                                Dilayani
+                                            </span>
+                                        </div>
+                                    @elseif ($guest->status === 'menunggu')
+                                        {{-- BELUM ASSIGN --}}
+                                        <form method="POST" action="{{ route('assign.store') }}"
+                                            class="flex flex-col gap-2 max-w-[150px] mx-auto">
+                                            @csrf
+                                            <input type="hidden" name="guest_id" value="{{ $guest->id }}">
+                                            <div class="md:col-span-6" x-data="pegawaiDropdown(@js(
+                                                $employees->map(
+                                                    fn($e) => [
+                                                        'id' => $e->id,
+                                                        'text' => $e->nama,
+                                                    ],
+                                                ),
+                                            ))">
+
+                                                <input type="hidden" name="employee_id" :value="selectedId"
+                                                    required>
+
+                                                <div class="relative">
+
+                                                    {{-- BUTTON --}}
+                                                    <button type="button" @click="toggle($event)"
+                                                        class="w-full text-left bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs shadow-sm flex justify-between items-center group">
+
+                                                        <span class="font-medium text-gray-700 truncate"
+                                                            x-text="selectedText || 'Pilih Pegawai'"></span>
+
+                                                        <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </button>
+
+                                                    {{-- DROPDOWN --}}
+                                                    <div x-show="open" x-cloak x-transition
+                                                        @click.outside="open = false"
+                                                        :class="openUp
+                                                            ?
+                                                            'absolute bottom-full mb-2 z-50 w-full bg-white border border-gray-200 rounded-xl shadow-xl' :
+                                                            'absolute top-full mt-2 z-50 w-full bg-white border border-gray-200 rounded-xl shadow-xl'">
+
+                                                        {{-- SEARCH --}}
+                                                        <div class="p-2 border-b bg-gray-50">
+                                                            <input type="text" x-model="search"
+                                                                placeholder="Cari nama pegawai..."
+                                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
+                                                        </div>
+
+                                                        {{-- LIST --}}
+                                                        <div class="max-h-48 overflow-y-auto">
+
+                                                            <template x-for="item in filteredItems()"
+                                                                :key="item.id">
+                                                                <div @click="select(item)"
+                                                                    class="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-xs text-gray-700 font-medium transition-colors border-b border-gray-50 last:border-0"
+                                                                    x-text="item.text">
+                                                                </div>
+                                                            </template>
+
+                                                            <div x-show="filteredItems().length === 0"
+                                                                class="px-3 py-6 text-center text-gray-400 text-xs">
+                                                                Pegawai tidak ditemukan
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button
+                                                class="bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-[10px] shadow-md shadow-green-100 transition-all active:scale-95">
+                                                Assign Petugas
+                                            </button>
+                                        </form>
+                                    @else
+                                        {{-- HISTORIS --}}
+                                        <div class="flex flex-col items-center gap-1">
+                                            <svg class="w-5 h-5 text-gray-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            <span class="text-[10px] font-bold text-gray-400 uppercase">
+                                                Selesai
+                                            </span>
                                         </div>
                                     @endif
                                 </td>
@@ -191,4 +289,43 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function pegawaiDropdown(items) {
+            return {
+                open: false,
+                openUp: false,
+                search: '',
+                selectedId: '',
+                selectedText: '',
+                items: items,
+
+                toggle(event) {
+                    this.open = !this.open
+
+                    this.$nextTick(() => {
+                        const rect = event.target.getBoundingClientRect()
+                        const dropdownHeight = 250 // estimasi tinggi dropdown
+
+                        const spaceBelow = window.innerHeight - rect.bottom
+
+                        this.openUp = spaceBelow < dropdownHeight
+                    })
+                },
+
+                filteredItems() {
+                    return this.items.filter(i =>
+                        i.text.toLowerCase().includes(this.search.toLowerCase())
+                    )
+                },
+
+                select(item) {
+                    this.selectedId = item.id
+                    this.selectedText = item.text
+                    this.open = false
+                    this.search = ''
+                }
+            }
+        }
+    </script>
 </x-app-layout>

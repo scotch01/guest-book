@@ -21,6 +21,7 @@ class Guest extends Model
         'email',
         'form_email',
         'tanggal_kunjungan',
+        'status',
         'keperluan',
         'jenis_layanan',
         'jenis_data',
@@ -37,4 +38,8 @@ class Guest extends Model
     {
         return $this->hasOne(Queue::class);
     }
+
+    protected $attributes = [
+        'status' => 'menunggu',
+    ];
 }
