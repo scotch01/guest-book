@@ -68,6 +68,28 @@
         {{-- TABLE CARD --}}
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
+                @if ($guests->total() > 0)
+                    <div
+                        class="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+                        <form method="GET" class="flex items-center gap-3">
+                            <label class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tampilkan:</label>
+                            <div class="relative">
+                                <select name="per_page" onchange="this.form.submit()"
+                                    class="pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer font-medium text-gray-700">
+                                    <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10
+                                    </option>
+                                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25
+                                    </option>
+                                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50
+                                    </option>
+                                    <option value="50" {{ request('per_page') == 100 ? 'selected' : '' }}>100
+                                    </option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                @endif
                 <table class="w-full text-sm border-collapse">
                     <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
                         <tr class="border-b border-gray-200">
@@ -140,7 +162,8 @@
                                         </form>
                                     @else
                                         <div class="flex flex-col items-center gap-1">
-                                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <svg class="w-5 h-5 text-green-500" fill="currentColor"
+                                                viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
                                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                                     clip-rule="evenodd" />
@@ -159,12 +182,13 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-        </div>
 
-        {{-- PAGINATION --}}
-        <div class="mt-2">
-            {{ $guests->links() }}
+                @if ($guests instanceof \Illuminate\Pagination\LengthAwarePaginator && $guests->hasPages())
+                    <div class="p-4 border-t">
+                        {{ $guests->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </x-app-layout>

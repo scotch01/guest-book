@@ -7,9 +7,12 @@ use App\Models\Employee;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::latest()->get();
+        $perPage = $request->get('per_page', 10);
+
+        $employees = \App\Models\Employee::orderBy('nama')
+        ->paginate($perPage);
 
         return view('employees.index', compact('employees'));
     }

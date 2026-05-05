@@ -30,8 +30,10 @@ class GuestController extends Controller
             }
         }
 
+        $perPage = $request->get('per_page', 20);
+
         $guests = $query->orderByDesc('tanggal_kunjungan')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         $employees = \App\Models\Employee::where('is_active', 1)->get();

@@ -57,6 +57,27 @@
             {{-- TABLE CARD --}}
             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
+                    @if ($employees->total() > 0)
+                        <div
+                            class="bg-gray-50/50 px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+                            <form method="GET" class="flex items-center gap-3">
+                                <label
+                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tampilkan:</label>
+                                <div class="relative">
+                                    <select name="per_page" onchange="this.form.submit()"
+                                        class="pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 appearance-none cursor-pointer font-medium text-gray-700">
+                                        <option value="10" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10
+                                        </option>
+                                        <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25
+                                        </option>
+                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50
+                                        </option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
                     <table class="w-full text-sm border-collapse">
                         <thead class="bg-gray-50/80 text-gray-500 text-xs uppercase tracking-wider">
                             <tr class="border-b border-gray-200">
@@ -72,7 +93,7 @@
                                 <tr class="hover:bg-indigo-50/30 transition-colors">
                                     <td
                                         class="px-6 py-4 text-center border-r border-gray-100 font-medium text-gray-400 italic">
-                                        {{ $i + 1 }}
+                                        {{ $employees->firstItem() + $i }}
                                     </td>
                                     <td class="px-6 py-4 border-r border-gray-100">
                                         <div class="font-bold text-gray-900">{{ $emp->nama }}</div>
@@ -154,21 +175,24 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic">
+                                    <td colspan="5" class="p-12 text-center text-gray-400 italic">
                                         Belum ada data pegawai.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
+                    @if ($employees instanceof \Illuminate\Pagination\LengthAwarePaginator && $employees->hasPages())
+                        <div class="p-4 border-t">
+                            {{ $employees->appends(request()->query())->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
 
-
-
         </div>
         <!-- MODAL -->
-        <div x-show="open" x-cloak x-transition class="fixed inset-0 z-50 flex items-center justify-center" >
+        <div x-show="open" x-cloak x-transition class="fixed inset-0 z-50 flex items-center justify-center">
 
             <!-- overlay -->
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="open = false"></div>
