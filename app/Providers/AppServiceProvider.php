@@ -22,4 +22,16 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('id');
     }
+
+    // Gunakan kode di bawah ini jika ingin memaksa penggunaan HTTPS pada lingkungan production
+
+    // public function boot()
+    // {
+    //     Carbon::setlocale('id');
+    //     setlocale(LC_TIME, 'id_ID');
+    //     Paginator::useTailwind();
+    //     if (app()->environment('production')) {
+    //         URL::forceScheme('https');
+    //     }
+    // }
 }
