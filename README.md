@@ -1,59 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📖 Guest Book — Sistem Buku Tamu BPS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Aplikasi manajemen buku tamu berbasis web untuk Badan Pusat Statistik (BPS), dibangun dengan Laravel 12, Tailwind CSS, dan Alpine.js. Data tamu disinkronkan secara otomatis dari Google Sheets (Google Form) ke database.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Fitur | Deskripsi |
+|---|---|
+| 🔄 **Sync Google Sheets** | Tarik data tamu dari Google Form/Sheets ke database secara on-demand |
+| 📋 **Manajemen Tamu** | Lihat daftar tamu hari ini & riwayat kunjungan dengan filter tanggal |
+| 👤 **Assign Pegawai** | Tugaskan pegawai untuk melayani tamu secara langsung |
+| 🔢 **Sistem Antrian** | Nomor antrian otomatis dan unik per tanggal kunjungan |
+| 📊 **Laporan Bulanan** | Rekap kunjungan per pegawai + breakdown layanan, bisa ekspor PDF |
+| 🏢 **Manajemen Pegawai** | CRUD pegawai dengan fitur aktivasi/nonaktivasi |
+| 📈 **Dashboard KPI** | Statistik real-time: total tamu, tamu terassign, PPID vs PST |
+| 🔒 **Sync Lock** | Mekanisme cooldown 30 menit untuk mencegah sync berlebihan |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠 Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Backend**: Laravel 12 (PHP ^8.2)
+- **Frontend**: Blade + Tailwind CSS v3 + Alpine.js
+- **Build Tool**: Vite
+- **Database**: MySQL
+- **Queue**: Laravel Queue (database driver)
+- **External**: Google Sheets API v4
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🚀 Quick Start (Lokal)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+# 1. Clone repository
+git clone <repo-url> guest-book
+cd guest-book
 
-### Premium Partners
+# 2. Install dependensi
+composer install
+npm install
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 3. Setup environment
+cp .env.example .env
+php artisan key:generate
 
-## Contributing
+# 4. Setup database (pastikan MySQL sudah berjalan dan database 'guest_book' dibuat)
+php artisan migrate
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 5. Build frontend & jalankan
+npm run build
+composer run dev
+```
 
-## Code of Conduct
+> Untuk setup lengkap (Google Sheets API, konfigurasi lanjutan), lihat [docs/SETUP.md](docs/SETUP.md).  
+> Untuk panduan deploy ke shared/cloud hosting, lihat [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 📁 Struktur Direktori
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+guest-book/
+├── app/
+│   ├── Console/Commands/    # SyncGuests - Artisan command
+│   ├── Http/Controllers/    # DashboardController, GuestController, dll
+│   ├── Models/              # Guest, Employee, GuestAssignment, Queue, SyncLock
+│   └── Services/            # AssignmentService, QueueService
+├── database/
+│   ├── migrations/          # 9 file migration
+│   └── seeders/
+├── resources/views/         # Blade templates (dashboard, guests, reports, employees)
+├── routes/
+│   ├── web.php              # Route utama aplikasi
+│   └── auth.php             # Route autentikasi (Breeze)
+├── docs/                    # Dokumentasi lengkap
+└── guest_book.sql           # SQL dump untuk MySQL
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📚 Dokumentasi
+
+| Dokumen | Isi |
+|---|---|
+| [SETUP.md](docs/SETUP.md) | Panduan instalasi lengkap (lokal & dengan MySQL) |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Panduan deploy ke server produksi |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Arsitektur aplikasi dan alur data |
+| [DATABASE.md](docs/DATABASE.md) | Skema database, relasi, dan penjelasan kolom |
+| [FEATURE.md](docs/FEATURE.md) | Deskripsi fitur lengkap beserta alur kerja |
+| [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md) | Isu yang diketahui dan workaround |
+| [CHANGELOG.md](docs/CHANGELOG.md) | Riwayat perubahan versi |
+
+---
+
+## 🔑 Akun Pengguna
+
+Buat akun admin pertama setelah setup selesai:
+
+```bash
+php artisan tinker
+```
+
+```php
+\App\Models\User::create([
+    'name'     => 'Nama Admin',
+    'email'    => 'email@instansi.anda',
+    'password' => bcrypt('password_kuat_anda'),
+]);
+```
+
+> ⚠️ Gunakan email dan password yang kuat. Jangan gunakan password default di lingkungan produksi.
+
+---
+
+## 📄 Lisensi
+
+MIT License — lihat file `LICENSE` untuk detail.

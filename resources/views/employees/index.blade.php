@@ -213,8 +213,8 @@
                     <h2 class="text-lg font-semibold">Konfirmasi</h2>
                 </div>
 
-                <p class="text-gray-600 mb-6">
-                    Nonaktifkan pegawai ini?
+                <p class="text-gray-500 mb-8 font-medium leading-relaxed">
+                    Anda akan <span class="text-red-600 font-bold">menonaktifkan</span> pegawai ini dari sistem pelayanan tamu. Tindakan ini dapat diubah kapan saja.
                 </p>
 
                 <div class="flex justify-end gap-3">
